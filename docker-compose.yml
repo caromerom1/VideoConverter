@@ -1,0 +1,63 @@
+version: '3'
+
+services:
+  api:
+    build:
+      context: ./api
+    restart: always
+    ports:
+      - ${API_PORT}:${API_PORT}
+    depends_on:
+      - postgres
+      - redis
+      - video_converter
+    environment:
+      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
+      - CELERY_REDIS_URL=redis://redis:${REDIS_PORT}/0
+    networks:
+      - video_converter_services
+    volumes:
+      - storage:/converter/media
+
+  video_converter:
+    build:
+      context: ./video_converter
+    restart: always
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
+      - CELERY_REDIS_URL=redis://redis:${REDIS_PORT}/0
+    networks:
+      - video_converter_services
+    volumes:
+      - storage:/converter/media
+
+  postgres:
+    image: postgres:13
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ~/apps/postgres:/var/lib/postgresql/data
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+    networks:
+      - video_converter_services
+
+  redis:
+    image: "redis:latest"
+    restart: always
+    ports:
+      - "${REDIS_PORT}:${REDIS_PORT}"
+    networks:
+      - video_converter_services
+
+networks:
+  video_converter_services:
+
+volumes:
+  storage:
