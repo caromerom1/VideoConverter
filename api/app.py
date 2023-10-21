@@ -1,7 +1,7 @@
 import os
 from flask import Flask
 from models import db
-from views import auth_bp
+from views import auth_bp, video_bp
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 
@@ -24,6 +24,7 @@ cors = CORS(app)
 jwt = JWTManager(app)
 
 app.register_blueprint(auth_bp, url_prefix='/api/auth')
+app.register_blueprint(video_bp, url_prefix='/api/tasks')
 
 if __name__ == "__main__":
     API_PORT = os.environ.get("API_PORT", 5000)
