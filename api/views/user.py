@@ -1,7 +1,6 @@
 import hashlib
 
-from flask import Blueprint
-from flask import jsonify, request
+from flask import Blueprint, jsonify, request
 from flask_jwt_extended import create_access_token
 
 from models import db, User

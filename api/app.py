@@ -4,15 +4,20 @@ from models import db
 from views import auth_bp, video_bp
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
+from celery import celery
 
 app = Flask(__name__)
 
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///db.sqlite3")
+app.config['CELERY_URL'] = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
 app.config['CONVERTED_FOLDER'] = '/app/media/converted'
 app.config['ORIGINALS_FOLDER'] = '/app/media/uploaded'
 app.config['JWT_SECRET_KEY'] = 'frase-secreta'
 app.config['PROPAGATE_EXCEPTIONS'] = True
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+celery.conf.update(app.config)
+celery.main = app.name
 
 app_context = app.app_context()
 app_context.push()
