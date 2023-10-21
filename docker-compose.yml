@@ -12,6 +12,7 @@ services:
       - redis
       - video_converter
     environment:
+      - API_PORT=${API_PORT}
       - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
       - CELERY_REDIS_URL=redis://redis:${REDIS_PORT}/0
     networks:

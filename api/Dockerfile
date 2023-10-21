@@ -12,6 +12,6 @@ COPY . .
 RUN mkdir -p /converter/media/uploaded
 RUN mkdir -p /converter/media/converted
 
-EXPOSE 5000
+EXPOSE $API_PORT
 
-CMD ["flask", "run", "--host=0.0.0.0", "--port=5000"]
+CMD ["python", "app.py"]
