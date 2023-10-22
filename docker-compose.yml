@@ -18,7 +18,7 @@ services:
     networks:
       - video_converter_services
     volumes:
-      - storage:/converter/media
+      - storage:/app/media
 
   video_converter:
     build:
@@ -29,11 +29,11 @@ services:
       - redis
     environment:
       - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
-      - CELERY_REDIS_URL=redis://redis:${REDIS_PORT}/0
+      - CELERY_URL=redis://redis:${REDIS_PORT}/0
     networks:
       - video_converter_services
     volumes:
-      - storage:/converter/media
+      - storage:/app/media
 
   postgres:
     image: postgres:13
