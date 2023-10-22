@@ -4,7 +4,7 @@ from models import db
 from views import auth_bp, video_bp
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
-from celery import celery
+from celery_instance import celery
 
 app = Flask(__name__)
 

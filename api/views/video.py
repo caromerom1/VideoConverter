@@ -4,7 +4,7 @@ from flask import Blueprint, jsonify, request, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.utils import secure_filename
 
-from celery import celery
+from celery_instance import celery
 from enums.ConversionStatus import ConversionStatus
 from models import db, Video, VideoSchema
 
