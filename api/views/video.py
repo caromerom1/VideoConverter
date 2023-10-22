@@ -37,16 +37,25 @@ def convert_video():
     if conversion_extension[0] == ".":
         conversion_extension = conversion_extension[1:]
 
+    allowed_extensions = ["mp4", "webm", "avi", "wmv", "mpeg"]
+
+    if conversion_extension not in allowed_extensions:
+        return (
+            jsonify(
+                {
+                    "msg": f"Conversion extension not allowed ({conversion_extension}). Allowed extensions are: {', '.join(allowed_extensions)}"
+                }
+            ),
+            400,
+        )
+
     user_id = get_jwt_identity()
 
     user_uploaded_folder = f"{current_app.config['ORIGINALS_FOLDER']}/{user_id}"
     user_converted_folder = f"{current_app.config['CONVERTED_FOLDER']}/{user_id}"
 
-    if not os.path.exists(user_uploaded_folder):
-        os.makedirs(user_uploaded_folder)
-
-    if not os.path.exists(user_converted_folder):
-        os.makedirs(user_converted_folder)
+    os.makedirs(user_uploaded_folder, exist_ok=True)
+    os.makedirs(user_converted_folder, exist_ok=True)
 
     secured_filename = secure_filename(file.filename)
 
@@ -56,9 +65,7 @@ def convert_video():
 
     file.save(original_file_location)
 
-    converted_file_location = (
-        f"{user_converted_folder}/{base_filename}.{conversion_extension}"
-    )
+    converted_file_location = f"{user_converted_folder}/{base_filename}"
 
     video_task = Video(
         user_id=user_id,
@@ -72,11 +79,15 @@ def convert_video():
 
     try:
         celery.send_task(
-            "tasks.video_conversion",
+            "video_tasks.convert_video",
             args=[
-                original_file_location,
-                converted_file_location,
-                conversion_extension,
+                {
+                    "paths": {
+                        "original": original_file_location,
+                        "converted": converted_file_location,
+                    },
+                    "extension": conversion_extension,
+                },
                 video_task.id,
             ],
         )
