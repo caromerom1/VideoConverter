@@ -14,11 +14,23 @@ video_bp = Blueprint("video", __name__)
 @video_bp.route("/", methods=["GET"])
 @jwt_required()
 def get_all_videos():
+    request_data = request.json
     user_id = get_jwt_identity()
+    order = request_data.get("order", None)
+    max = request_data.get("max", None)
+    videos_tasks = Video().query.filter(Video.user_id == user_id)
 
-    videos_tasks = Video().query.filter(Video.user_id == user_id).all()
+    if order:
+        order_criteria = Video.id.desc() if order == '1' else Video.id.asc()
 
-    return jsonify(VideoSchema(many=True).dump(videos_tasks)), 200
+        videos_tasks = videos_tasks.order_by(order_criteria)
+
+    if max:
+        videos_tasks = videos_tasks.limit(max)
+
+    query_result = videos_tasks.all()
+
+    return jsonify(VideoSchema(many=True).dump(query_result)), 200
 
 
 @video_bp.route("/", methods=["POST"])
