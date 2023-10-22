@@ -34,6 +34,9 @@ def convert_video():
     if not conversion_extension:
         return jsonify({"msg": "No conversion extension provided"}), 400
 
+    if conversion_extension[0] == ".":
+        conversion_extension = conversion_extension[1:]
+
     user_id = get_jwt_identity()
 
     user_uploaded_folder = f"{current_app.config['ORIGINALS_FOLDER']}/{user_id}"
