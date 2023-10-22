@@ -12,10 +12,14 @@ auth_bp = Blueprint("auth", __name__)
 def signup():
     user = User().query.filter(User.email == request.json["email"]).first()
 
-    password = request.json["password"]
+    password = request.json.get("password", None)
+    confirmation_password = request.json.get("confirmation_password", None)
 
     if user is not None:
         return jsonify({"message": "User already exists"}), 400
+
+    if password != confirmation_password:
+        return jsonify({"message": "Passwords don't match"}), 400
 
     encrypted_password = hashlib.md5(password.encode("utf-8")).hexdigest()
     new_user = User(
