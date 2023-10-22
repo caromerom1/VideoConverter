@@ -1,5 +1,6 @@
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
+from marshmallow import fields
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 
 from enums.ConversionStatus import ConversionStatus
@@ -32,8 +33,12 @@ class Video(db.Model):
 
 
 class VideoSchema(SQLAlchemyAutoSchema):
+    status = fields.Method("serialize_status")
     class Meta:
         model = Video
         fields = ("id", "conversion_extension", "status")
         include_relationships = True
         load_instance = True
+
+    def serialize_status(self, obj):
+        return obj.status.value
