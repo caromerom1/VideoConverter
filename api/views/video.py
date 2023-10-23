@@ -21,7 +21,7 @@ def get_all_videos():
     videos_tasks = Video().query.filter(Video.user_id == user_id)
 
     if order:
-        order_criteria = Video.id.desc() if order == '1' else Video.id.asc()
+        order_criteria = Video.id.desc() if order == "1" else Video.id.asc()
 
         videos_tasks = videos_tasks.order_by(order_criteria)
 
@@ -31,6 +31,38 @@ def get_all_videos():
     query_result = videos_tasks.all()
 
     return jsonify(VideoSchema(many=True).dump(query_result)), 200
+
+
+@video_bp.route("/<task_id>", methods=["GET"])
+@jwt_required()
+def get_video(task_id):
+    if not task_id:
+        return jsonify({"message": "No task_id provided"}), 400
+
+    user_id = get_jwt_identity()
+
+    video_task = (
+        Video().query.filter(Video.user_id == user_id, Video.id == task_id).first()
+    )
+
+    if not video_task:
+        return jsonify({"message": "No video found"}), 404
+
+    original_filename = video_task.original_path.split("/")[-1]
+    converted_filename = video_task.converted_path.split("/")[-1]
+
+    video_task_data = VideoSchema().dump(video_task)
+
+    host = request.host_url
+
+    video_task_data[
+        "original"
+    ] = f"{host}download/video/{video_task.id}?filename={original_filename}"
+    video_task_data[
+        "converted"
+    ] = f"{host}download/video/{video_task.id}?converted=true&filename={converted_filename}"
+
+    return jsonify(video_task_data), 200
 
 
 @video_bp.route("/", methods=["POST"])
@@ -82,7 +114,7 @@ def convert_video():
     video_task = Video(
         user_id=user_id,
         original_path=original_file_location,
-        converted_path=converted_file_location,
+        converted_path=f"{converted_file_location}.{conversion_extension}",
         conversion_extension=conversion_extension,
     )
 
