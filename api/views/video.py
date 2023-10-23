@@ -150,3 +150,30 @@ def convert_video():
         video_task.status = ConversionStatus.FAILED
         db.session.commit()
         return jsonify({"message": str(e)}), 500
+
+
+@video_bp.route("/<task_id>", methods=["DELETE"])
+@jwt_required()
+def delete_video(task_id):
+    if not task_id:
+        return jsonify({"message": "No task_id provided"}), 400
+
+    user_id = get_jwt_identity()
+
+    video_task = (
+        Video().query.filter(Video.user_id == user_id, Video.id == task_id).first()
+    )
+
+    if not video_task:
+        return jsonify({"message": "No video found"}), 404
+
+    if video_task.status != ConversionStatus.SUCCESS:
+        return jsonify({"message": "Video not converted yet"}), 400
+
+    os.remove(video_task.original_path)
+    os.remove(video_task.converted_path)
+
+    db.session.delete(video_task)
+    db.session.commit()
+
+    return jsonify({"message": "Video deleted succesfully"}), 200
