@@ -7,6 +7,9 @@ Members:
 * Juan José Montenegro Pulido - jj.montenegro@uniandes.edu.co
 * Camilo Andrés Romero Maldonado – ca.romerom1@uniandes.edu.co
 
+## Postman API Documentation
+[Postman API Documentation](https://documenter.getpostman.com/view/6679811/2s9YRCWB4j)
+
 ## Steps for executing the project
 
 Copy the file `.env.example` and use `.env` as its name. If desired, the variables values can be changed.

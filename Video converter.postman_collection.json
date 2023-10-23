@@ -1,0 +1,713 @@
+{
+	"info": {
+		"_postman_id": "35c3aaf3-8235-43c4-87f9-bea044029ea0",
+		"name": "Video converter",
+		"description": "The following specifies the documentation for the cloud project for converting video files from one format to another. This allows to create and handle user authentications. Most endpoints require the user to be authenticated. After this, the user is allowed to Upload video files, query the information of the video conversion tasks that he has created. Get information of specific video tasks, download both original and converted videos and delete uploaded videos.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "6679811"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Signup",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"usuario de prueba\",\n    \"email\": \"test0@test.com\",\n    \"password\": \"1234\",\n    \"confirmation_password\": \"1234\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/auth/signup",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"auth",
+								"signup"
+							]
+						},
+						"description": "This endpoint allows to register users for using the API\n\n# Endpoint params\n\n- `username` (String) User name that is going to be assigned\n- `email` (String) email that is going to be assigned. Has to be unique\n- `password` (String) User password\n- `confirmation_password` Confirmation of user's password\n    \n\n# Returns\n\n- `201` If the user was created successfully\n- `400` If the passwords do not match or if the user is already registered in the database"
+					},
+					"response": [
+						{
+							"name": "Signup",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"username\": \"usuario de prueba\",\n    \"email\": \"test0@test.com\",\n    \"password\": \"1234\",\n    \"confirmation_password\": \"1234\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:5000/api/auth/signup",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5000",
+									"path": [
+										"api",
+										"auth",
+										"signup"
+									]
+								}
+							},
+							"status": "CREATED",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Werkzeug/3.0.0 Python/3.12.0"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 23 Oct 2023 03:49:59 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "45"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"User created successfully\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Login",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"test@test.com\",\n    \"password\": \"1234\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/auth/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "This endpoint allows the user for authenticating on the API\n\n# Endpoint params\n\n- `email` (String) email that is going to be assigned. Has to be unique\n- `password` (String) User password\n    \n\n# Returns\n\n- `200` If the user logged in successfully\n- `401` If the credentials are invalid"
+					},
+					"response": [
+						{
+							"name": "Login",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"test6@test.com\",\n    \"password\": \"1234\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:5000/api/auth/login",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5000",
+									"path": [
+										"api",
+										"auth",
+										"login"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Werkzeug/3.0.0 Python/3.12.0"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 23 Oct 2023 03:52:58 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "334"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": 5,\n    \"message\": \"User logged in successfully\",\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY5ODAzMzE3OCwianRpIjoiMjc5NGU2NWEtYmIyMS00NDY4LWI2MzYtOWYyYzk1YTMwMjIwIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6NSwibmJmIjoxNjk4MDMzMTc4LCJleHAiOjE2OTgwMzQwNzh9.owHnm_zJoV5-b3d8pXIwbJV5KC0MTWLsurnUnhaE5is\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Tasks",
+			"item": [
+				{
+					"name": "Get all tasks",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"order\": \"1\",\n    \"max\": 2\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/tasks",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"tasks"
+							]
+						},
+						"description": "This endpoint returns the list of the user's video conversion tasks. It requires the user to be authenticated and that he sends the JWT token as a Bearer Token in the Authorization header. It can receive `order` and `max` params for modifying the desired return output.\n\n# Endpoint params\n\n- `order` (String - optional) Can be `0` if desired order is ascending or `1` if descending\n- `max` (String - optional) Amount of entries that the user wants to retrieve\n    \n\n# Returns\n\n- `200` With the list of user's video conversion tasks\n    \n- `401` If the token is not sent in the Authorization header (user is not authenticated)"
+					},
+					"response": [
+						{
+							"name": "Get all tasks",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"order\": \"1\",\n    \"max\": 2\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:5000/api/tasks",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5000",
+									"path": [
+										"api",
+										"tasks"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Werkzeug/3.0.0 Python/3.12.0"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 23 Oct 2023 03:54:59 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "167"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "[\n    {\n        \"conversion_extension\": \"mp4\",\n        \"id\": 47,\n        \"status\": \"SUCCESS\"\n    },\n    {\n        \"conversion_extension\": \"avi\",\n        \"id\": 46,\n        \"status\": \"SUCCESS\"\n    }\n]"
+						}
+					]
+				},
+				{
+					"name": "Upload video",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "video",
+									"type": "file",
+									"src": "/home/camilo/Documents/timbre.webm"
+								},
+								{
+									"key": "conversion_extension",
+									"value": "avi",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/tasks",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"tasks"
+							]
+						},
+						"description": "This endpoint allows the user to upload a video to the api for it to be converted. It requires the user to be authenticated and that he sends the JWT token as a Bearer Token in the Authorization header. It requires the user to send the `video` and `conversion_extension` for the API to know which video format is going to convert the video to.\n\n# Endpoint params\n\n`empty`\n\n# Query params\n\n- `video` (File) Video file to be converted\n- `conversion_extension` (String) extension for the API to know what extension to convert the video. Can be `mp4`, `webm`, `avi`, `wmv`, `mpeg`\n    \n\n# Returns\n\n- `200` If the video was uploaded successfully and started to convert to the desired format\n    \n- `400` If no `video` or `conversion_extension`is sent or `conversion_extension` is not valid\n    \n- `401` If the token is not sent in the Authorization header (user is not authenticated)"
+					},
+					"response": [
+						{
+							"name": "Upload video",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "video",
+											"type": "file",
+											"src": "/home/camilo/Documents/timbre.webm"
+										},
+										{
+											"key": "conversion_extension",
+											"value": "avi",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "http://localhost:5000/api/tasks",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5000",
+									"path": [
+										"api",
+										"tasks"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Werkzeug/3.0.0 Python/3.12.0"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 23 Oct 2023 03:54:15 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "56"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Converting video...\",\n    \"task_id\": 46\n}"
+						}
+					]
+				},
+				{
+					"name": "Get task",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/tasks/45",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"tasks",
+								"45"
+							]
+						},
+						"description": "This endpoint retrieves the desired video conversion task among the download URLs for both the original and converted videos. It requires the user to be authenticated and that he sends the JWT token as a Bearer Token in the Authorization header. It requires the user to send the `task_id` as path param for identifying the desired video to be searched for.\n\n# Endpoint params\n\n`empty`\n\n# Returns\n\n- `200` If the video conversion task exists and belongs to the user\n- `404` If the video conversion task does not exist or doesn't belong to the user\n- `400` If no `task_id` is sent\n- `401` If the token is not sent in the Authorization header (user is not authenticated)"
+					},
+					"response": [
+						{
+							"name": "Get task",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:5000/api/tasks/46",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5000",
+									"path": [
+										"api",
+										"tasks",
+										"46"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Werkzeug/3.0.0 Python/3.12.0"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 23 Oct 2023 03:55:15 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "242"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"conversion_extension\": \"avi\",\n    \"converted\": \"http://localhost:5000/download/video/46?converted=true&filename=timbre.avi\",\n    \"id\": 46,\n    \"original\": \"http://localhost:5000/download/video/46?filename=timbre.webm\",\n    \"status\": \"SUCCESS\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Delete video",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/tasks/45",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"tasks",
+								"45"
+							]
+						},
+						"description": "This endpoint deletes the specified video conversion task. It requires the user to be authenticated and that he sends the JWT token as a Bearer Token in the Authorization header. It requires the user to send the `task_id` as path param for identifying the video that will be deleted.\n\n# Endpoint params\n\n`empty`\n\n# Returns\n\n- `200` If the video conversion task was deleted successfully\n- `404` If the video conversion task does not exist or doesn't belong to the user\n- `400` If no `task_id` is sent or the video has not been converted\n- `401` If the token is not sent in the Authorization header (user is not authenticated)"
+					},
+					"response": [
+						{
+							"name": "Delete video",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:5000/api/tasks/47",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5000",
+									"path": [
+										"api",
+										"tasks",
+										"47"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Werkzeug/3.0.0 Python/3.12.0"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 23 Oct 2023 03:55:31 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "45"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Video deleted succesfully\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Download",
+			"item": [
+				{
+					"name": "Download video",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true,
+						"disabledSystemHeaders": {}
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/download/video/45?converted=true&filename=timbre.avi",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"download",
+								"video",
+								"45"
+							],
+							"query": [
+								{
+									"key": "converted",
+									"value": "true"
+								},
+								{
+									"key": "filename",
+									"value": "timbre.avi"
+								}
+							]
+						},
+						"description": "This endpoint allows the user to download a video that he uploaded to the api or that was converted after an uploaded video by him. It requires the user to be authenticated and that he sends the JWT token as a Bearer Token in the Authorization header. It requires the user to send the `task_id` as path param for identifying the desired video to be searched for. This URL is built by the `Get task` endpoint to allow the user to download the original/converted file he uploaded\n\n# Endpoint params\n\n`empty`\n\n# Query params\n\n- `converted` (Boolean - optional) Allows the API to know where to search the video in user's storage\n- `filename` (String) Name of the file with extension for the API to know which file to retrieve to the user\n    \n\n# Returns\n\n- `200` If the video was retrieved successfully\n    \n- `404` If the video conversion task does not exist or doesn't belong to the user\n- `400` If no `task_id` is sent or the video has not been converted or Video is not ready to be downloaded\n    \n- `401` If the token is not sent in the Authorization header (user is not authenticated)"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
