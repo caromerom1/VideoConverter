@@ -8,13 +8,12 @@ from celery_instance import celery
 
 app = Flask(__name__)
 
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///db.sqlite3")
-app.config['CELERY_URL'] = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
-app.config['CONVERTED_FOLDER'] = '/app/media/converted'
-app.config['ORIGINALS_FOLDER'] = '/app/media/uploaded'
-app.config['JWT_SECRET_KEY'] = 'frase-secreta'
-app.config['PROPAGATE_EXCEPTIONS'] = True
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "")
+app.config["CONVERTED_FOLDER"] = "/app/media/converted"
+app.config["ORIGINALS_FOLDER"] = "/app/media/uploaded"
+app.config["JWT_SECRET_KEY"] = "frase-secreta"
+app.config["PROPAGATE_EXCEPTIONS"] = True
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 celery.conf.update(app.config)
 celery.main = app.name
@@ -28,9 +27,9 @@ db.create_all()
 cors = CORS(app)
 jwt = JWTManager(app)
 
-app.register_blueprint(download_bp, url_prefix='/download')
-app.register_blueprint(auth_bp, url_prefix='/api/auth')
-app.register_blueprint(video_bp, url_prefix='/api/tasks')
+app.register_blueprint(download_bp, url_prefix="/download")
+app.register_blueprint(auth_bp, url_prefix="/api/auth")
+app.register_blueprint(video_bp, url_prefix="/api/tasks")
 
 if __name__ == "__main__":
     API_PORT = os.environ.get("API_PORT", 5000)
