@@ -34,11 +34,16 @@ class Video(db.Model):
 
 class VideoSchema(SQLAlchemyAutoSchema):
     status = fields.Method("serialize_status")
+    original_filename = fields.Method("get_original_filename")
+
     class Meta:
         model = Video
-        fields = ("id", "conversion_extension", "status")
+        fields = ("id", "conversion_extension", "status", "timestamp", "original_filename")
         include_relationships = True
         load_instance = True
 
     def serialize_status(self, obj):
         return obj.status.value
+
+    def get_original_filename(self, obj):
+        return obj.original_path.split("/")[-1]
