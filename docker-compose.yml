@@ -14,7 +14,7 @@ services:
     networks:
       - video_converter_services
     volumes:
-      - storage:/app/media
+      - ./storage:/app
 
   video_converter:
     build:
@@ -26,7 +26,7 @@ services:
     networks:
       - video_converter_services
     volumes:
-      - storage:/app/media
+      - ./storage:/app
 
   postgres:
     image: postgres:13
@@ -52,6 +52,3 @@ services:
 
 networks:
   video_converter_services:
-
-volumes:
-  storage:
