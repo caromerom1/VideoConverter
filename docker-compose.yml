@@ -7,14 +7,10 @@ services:
     restart: always
     ports:
       - ${API_PORT}:${API_PORT}
-    depends_on:
-      - postgres
-      - redis
-      - video_converter
     environment:
       - API_PORT=${API_PORT}
       - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
-      - CELERY_URL=redis://redis:${REDIS_PORT}/0
+      - CELERY_URL=redis://${REDIS_HOST}:${REDIS_PORT}/0
     networks:
       - video_converter_services
     volumes:
@@ -24,12 +20,9 @@ services:
     build:
       context: ./video_converter
     restart: always
-    depends_on:
-      - postgres
-      - redis
     environment:
       - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
-      - CELERY_URL=redis://redis:${REDIS_PORT}/0
+      - CELERY_URL=redis://${REDIS_HOST}:${REDIS_PORT}/0
     networks:
       - video_converter_services
     volumes:
