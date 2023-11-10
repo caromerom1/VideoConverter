@@ -28,7 +28,7 @@ def convert_video(self, task_details, task_id):
 
     temp_converted_file = tempfile.NamedTemporaryFile(delete=False).name
     converted_file_name = paths["converted"]
-    paths["converted"] = temp_upload_file
+    paths["converted"] = temp_converted_file
 
     try:
         bucket.blob(original_file_name).download_to_filename(temp_upload_file)
