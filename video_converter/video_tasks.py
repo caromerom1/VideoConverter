@@ -5,6 +5,7 @@ from models import session, Video
 from celery_instance import celery
 from enums import ConversionStatus
 from google.cloud import storage
+import tempfile
 
 
 GCP_BUCKET_NAME = "video-converter-bucket"
@@ -21,8 +22,16 @@ def convert_video(self, task_details, task_id):
 
     cmd = conversion_command(paths, conversion_extension)
 
+    temp_upload_file = tempfile.NamedTemporaryFile(delete=False).name
+    original_file_name = paths["original"]
+    paths["original"] = temp_upload_file
+
+    temp_converted_file = tempfile.NamedTemporaryFile(delete=False).name
+    converted_file_name = paths["converted"]
+    paths["converted"] = temp_upload_file
+
     try:
-        bucket.blob(paths["original"]).download_to_filename(paths["original"])
+        bucket.blob(original_file_name).download_to_filename(temp_upload_file)
 
         with session() as db:
             video_conversion_task = db.query(Video).filter(Video.id == task_id).first()
@@ -41,11 +50,11 @@ def convert_video(self, task_details, task_id):
             os.system(cmd)
 
             bucket.blob(
-                f"{paths['converted']}.{conversion_extension}"
+                f"{converted_file_name}.{conversion_extension}"
             ).upload_from_filename(f"{paths['converted']}.{conversion_extension}")
 
-            original_file_location = paths["original"]
-            converted_file_location = f"{paths['converted']}.{conversion_extension}"
+            original_file_location = original_file_name
+            converted_file_location = f"{converted_file_name}.{conversion_extension}"
 
             self.update_state(
                 state=states.SUCCESS,
@@ -57,8 +66,8 @@ def convert_video(self, task_details, task_id):
 
             return f"Converted {original_file_location} to {converted_file_location}"
     finally:
-        os.remove(paths["original"])
-        os.remove(f"{paths['converted']}.{conversion_extension}")
+        os.remove(temp_upload_file)
+        os.remove(temp_converted_file)
 
 
 def conversion_command(paths, conversion_extension):
