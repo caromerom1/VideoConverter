@@ -1,4 +1,4 @@
-import os
+from datetime import timedelta
 
 from flask import Blueprint, jsonify, request, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
@@ -7,8 +7,13 @@ from werkzeug.utils import secure_filename
 from celery_instance import celery
 from enums.ConversionStatus import ConversionStatus
 from models import db, Video, VideoSchema
+from google.cloud import storage
 
 video_bp = Blueprint("video", __name__)
+
+GCP_BUCKET_NAME = "video-converter-bucket"
+client = storage.Client()
+bucket = storage.Bucket(client, GCP_BUCKET_NAME)
 
 
 @video_bp.route("/", methods=["GET"])
@@ -48,19 +53,18 @@ def get_video(task_id):
     if not video_task:
         return jsonify({"message": "No video found"}), 404
 
-    original_filename = video_task.original_path.split("/")[-1]
-    converted_filename = video_task.converted_path.split("/")[-1]
-
     video_task_data = VideoSchema().dump(video_task)
 
-    host = request.host_url
+    original_url = bucket.blob(video_task.original_path).generate_signed_url(
+        version="v4", expiration=timedelta(minutes=5)
+    )
 
-    video_task_data[
-        "original"
-    ] = f"{host}download/video/{video_task.id}?filename={original_filename}"
-    video_task_data[
-        "converted"
-    ] = f"{host}download/video/{video_task.id}?converted=true&filename={converted_filename}"
+    converted_url = bucket.blob(video_task.converted_path).generate_signed_url(
+        version="v4", expiration=timedelta(minutes=5)
+    )
+
+    video_task_data["original"] = original_url
+    video_task_data["converted"] = converted_url
 
     return jsonify(video_task_data), 200
 
@@ -98,16 +102,14 @@ def convert_video():
     user_uploaded_folder = f"{current_app.config['ORIGINALS_FOLDER']}/{user_id}"
     user_converted_folder = f"{current_app.config['CONVERTED_FOLDER']}/{user_id}"
 
-    os.makedirs(user_uploaded_folder, exist_ok=True)
-    os.makedirs(user_converted_folder, exist_ok=True)
-
     secured_filename = secure_filename(file.filename)
 
     base_filename = secured_filename.split(".")[0]
 
     original_file_location = f"{user_uploaded_folder}/{secured_filename}"
 
-    file.save(original_file_location)
+    blob = bucket.blob(original_file_location)
+    blob.upload_from_file(file)
 
     converted_file_location = f"{user_converted_folder}/{base_filename}"
 
@@ -170,8 +172,8 @@ def delete_video(task_id):
     if video_task.status != ConversionStatus.SUCCESS:
         return jsonify({"message": "Video not converted yet"}), 400
 
-    os.remove(video_task.original_path)
-    os.remove(video_task.converted_path)
+    bucket.delete_blob(video_task.original_path)
+    bucket.delete_blob(video_task.converted_path)
 
     db.session.delete(video_task)
     db.session.commit()

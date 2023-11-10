@@ -13,8 +13,6 @@ services:
       - CELERY_URL=redis://${REDIS_HOST}:${REDIS_PORT}/0
     networks:
       - video_converter_services
-    volumes:
-      - ./storage:/app
 
   video_converter:
     build:
@@ -25,8 +23,6 @@ services:
       - CELERY_URL=redis://${REDIS_HOST}:${REDIS_PORT}/0
     networks:
       - video_converter_services
-    volumes:
-      - ./storage:/app
 
   postgres:
     image: postgres:13

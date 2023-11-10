@@ -9,8 +9,8 @@ from celery_instance import celery
 app = Flask(__name__)
 
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "")
-app.config["CONVERTED_FOLDER"] = "/app/media/converted"
-app.config["ORIGINALS_FOLDER"] = "/app/media/uploaded"
+app.config["CONVERTED_FOLDER"] = "/converted"
+app.config["ORIGINALS_FOLDER"] = "/uploaded"
 app.config["JWT_SECRET_KEY"] = "frase-secreta"
 app.config["PROPAGATE_EXCEPTIONS"] = True
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
