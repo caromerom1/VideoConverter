@@ -20,8 +20,6 @@ def convert_video(self, task_details, task_id):
     paths = task_details["paths"]
     conversion_extension = task_details["extension"]
 
-    cmd = conversion_command(paths, conversion_extension)
-
     temp_upload_file = tempfile.NamedTemporaryFile(delete=False).name
     original_file_name = paths["original"]
     paths["original"] = temp_upload_file
@@ -29,6 +27,8 @@ def convert_video(self, task_details, task_id):
     temp_converted_file = tempfile.NamedTemporaryFile(delete=False).name
     converted_file_name = paths["converted"]
     paths["converted"] = temp_converted_file
+
+    cmd = conversion_command(paths, conversion_extension)
 
     try:
         bucket.blob(original_file_name).download_to_filename(temp_upload_file)
