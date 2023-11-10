@@ -8,6 +8,8 @@ from celery_instance import celery
 from enums.ConversionStatus import ConversionStatus
 from models import db, Video, VideoSchema
 from google.cloud import storage
+from google.auth.transport import requests
+from google.auth import compute_engine
 
 video_bp = Blueprint("video", __name__)
 
@@ -55,12 +57,21 @@ def get_video(task_id):
 
     video_task_data = VideoSchema().dump(video_task)
 
+    auth_request = requests.Request()
+    signing_credentials = compute_engine.IDTokenCredentials(auth_request, "")
+
     original_url = bucket.blob(video_task.original_path).generate_signed_url(
-        version="v4", expiration=timedelta(minutes=5)
+        version="v4",
+        expiration=timedelta(minutes=5),
+        method="GET",
+        credentials=signing_credentials,
     )
 
     converted_url = bucket.blob(video_task.converted_path).generate_signed_url(
-        version="v4", expiration=timedelta(minutes=5)
+        version="v4",
+        expiration=timedelta(minutes=5),
+        method="GET",
+        credentials=signing_credentials,
     )
 
     video_task_data["original"] = original_url
