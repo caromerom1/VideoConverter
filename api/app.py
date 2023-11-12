@@ -1,7 +1,7 @@
 import os
 from flask import Flask
 from models import db
-from views import healthcheck_bp, video_bp, download_bp, healthcheck_bp
+from views import auth_bp, video_bp, download_bp, healthcheck_bp
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from celery_instance import celery
@@ -29,7 +29,7 @@ jwt = JWTManager(app)
 
 app.register_blueprint(healthcheck_bp, url_prefix="")
 app.register_blueprint(download_bp, url_prefix="/download")
-app.register_blueprint(healthcheck_bp, url_prefix="/api/auth")
+app.register_blueprint(auth_bp, url_prefix="/api/auth")
 app.register_blueprint(video_bp, url_prefix="/api/tasks")
 
 if __name__ == "__main__":
