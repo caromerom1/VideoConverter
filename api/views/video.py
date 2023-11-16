@@ -4,10 +4,11 @@ from flask import Blueprint, jsonify, request, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.utils import secure_filename
 
-from celery_instance import celery
+import json
+import os
 from enums.ConversionStatus import ConversionStatus
 from models import db, Video, VideoSchema
-from google.cloud import storage
+from google.cloud import pubsub_v1, storage
 from google.auth.transport import requests
 from google.auth import compute_engine
 
@@ -17,6 +18,10 @@ GCP_BUCKET_NAME = "video-converter-bucket"
 client = storage.Client()
 bucket = storage.Bucket(client, GCP_BUCKET_NAME)
 
+project_id = os.environ.get("GCP_PROJECT_ID", "")
+topic_name = os.environ.get("GCP_TOPIC_ID", "")
+publisher = pubsub_v1.PublisherClient()
+topic_path = publisher.topic_path(project_id, topic_name)
 
 @video_bp.route("/", methods=["GET"])
 @jwt_required()
@@ -135,19 +140,16 @@ def convert_video():
     db.session.commit()
 
     try:
-        celery.send_task(
-            "video_tasks.convert_video",
-            args=[
-                {
-                    "paths": {
-                        "original": original_file_location,
-                        "converted": converted_file_location,
-                    },
-                    "extension": conversion_extension,
-                },
-                video_task.id,
-            ],
+        video_data = json.dumps(
+            {
+                "task_id": video_task.id,
+                "converted_path": original_file_location,
+                "original_path": converted_file_location,
+                "extension": conversion_extension,
+            }
         )
+        future = publisher.publish(topic_path, data=video_data)
+        future.result()
 
         return (
             jsonify(

@@ -4,7 +4,6 @@ from models import db
 from views import auth_bp, video_bp, download_bp, healthcheck_bp
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
-from celery_instance import celery
 
 app = Flask(__name__)
 
@@ -14,9 +13,6 @@ app.config["ORIGINALS_FOLDER"] = "uploaded"
 app.config["JWT_SECRET_KEY"] = "frase-secreta"
 app.config["PROPAGATE_EXCEPTIONS"] = True
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
-celery.conf.update(app.config)
-celery.main = app.name
 
 app_context = app.app_context()
 app_context.push()

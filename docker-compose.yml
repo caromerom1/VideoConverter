@@ -11,6 +11,8 @@ services:
       - API_PORT=${API_PORT}
       - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
       - CELERY_URL=redis://${REDIS_HOST}:${REDIS_PORT}/0
+      - GCP_PROJECT_ID=${GCP_PROJECT_ID}
+      - GCP_TOPIC_ID=${GCP_TOPIC_ID}
     networks:
       - video_converter_services
 
