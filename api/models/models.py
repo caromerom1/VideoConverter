@@ -23,7 +23,6 @@ class UserSchema(SQLAlchemyAutoSchema):
 
 class Video(db.Model):
     conversion_extension = db.Column(db.String(255), nullable=False)
-    conversion_task_id = db.Column(db.String(255), unique=True)
     converted_path = db.Column(db.String(255), nullable=False)
     id = db.Column(db.Integer, primary_key=True)
     original_path = db.Column(db.String(255), nullable=False)

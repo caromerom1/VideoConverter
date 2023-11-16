@@ -10,4 +10,4 @@ RUN pip install -r requirements.txt
 
 COPY . .
 
-CMD ["celery", "-A", "video_tasks", "worker", "--loglevel=info"]
+CMD ["python", "video_tasks.py"]

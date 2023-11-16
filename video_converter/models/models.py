@@ -34,7 +34,6 @@ class Video(Base):
     __tablename__ = "video"
 
     conversion_extension = Column(String(255), nullable=False)
-    conversion_task_id = Column(String(255), unique=True)
     converted_path = Column(String(255), nullable=False)
     id = Column(Integer, primary_key=True)
     original_path = Column(String(255), nullable=False)

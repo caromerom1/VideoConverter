@@ -1,11 +1,9 @@
 import os
-from celery.exceptions import Ignore
-from celery import states
 from models import session, Video
-from celery_instance import celery
 from enums import ConversionStatus
-from google.cloud import storage
+from google.cloud import pubsub_v1, storage
 import tempfile
+import json
 
 
 GCP_BUCKET_NAME = "video-converter-bucket"
@@ -13,12 +11,14 @@ client = storage.Client()
 bucket = storage.Bucket(client, GCP_BUCKET_NAME)
 
 
-@celery.task(bind=True)
-def convert_video(self, task_details, task_id):
-    self.update_state(state=states.STARTED, meta={"status": "Started video conversion"})
+def convert_video(video_data):
+    conversion_extension = video_data["extension"]
+    task_id = video_data["task_id"]
 
-    paths = task_details["paths"]
-    conversion_extension = task_details["extension"]
+    paths = {
+        "original": video_data["original_path"],
+        "converted": video_data["converted_path"],
+    }
 
     temp_upload_file = tempfile.NamedTemporaryFile(delete=False).name
     original_file_name = paths["original"]
@@ -36,18 +36,19 @@ def convert_video(self, task_details, task_id):
         with session() as db:
             video_conversion_task = db.query(Video).filter(Video.id == task_id).first()
             video_conversion_task.status = ConversionStatus.IN_PROGRESS
-            video_conversion_task.conversion_task_id = self.request.id
             session.commit()
 
             if not cmd:
-                self.update_state(
-                    state=states.FAILURE, meta={"status": "Invalid command"}
-                )
                 video_conversion_task.status = ConversionStatus.FAILED
                 session.commit()
-                raise Ignore()
+                return {"status": "ERROR", "message": "Conversion failed"}
 
-            os.system(cmd)
+            convertion_status = os.system(cmd)
+
+            if convertion_status != 0:
+                video_conversion_task.status = ConversionStatus.FAILED
+                session.commit()
+                return {"status": "ERROR", "message": "Conversion failed"}
 
             bucket.blob(
                 f"{converted_file_name}.{conversion_extension}"
@@ -56,15 +57,14 @@ def convert_video(self, task_details, task_id):
             original_file_location = original_file_name
             converted_file_location = f"{converted_file_name}.{conversion_extension}"
 
-            self.update_state(
-                state=states.SUCCESS,
-                meta={"status": f"File saved to {converted_file_location}"},
-            )
-
             video_conversion_task.status = ConversionStatus.SUCCESS
             session.commit()
 
-            return f"Converted {original_file_location} to {converted_file_location}"
+            return {
+                "status": "SUCCESS",
+                "message": f"Converted {original_file_location} to {converted_file_location}",
+            }
+
     finally:
         os.remove(temp_upload_file)
         os.remove(temp_converted_file)
@@ -80,3 +80,36 @@ def conversion_command(paths, conversion_extension):
     }
 
     return conversion_commands.get(conversion_extension, None)
+
+
+def subscriber_callback(message):
+    video_data = json.loads(message.data.decode("utf-8"))
+
+    task_result = convert_video(video_data)
+
+    if task_result.get("status") == "SUCCESS":
+        message.ack()
+    else:
+        message.nack()
+
+    print(task_result)
+
+
+def main():
+    project_id = os.environ.get("GCP_PROJECT_ID")
+    topic_id = os.environ.get("GCP_TOPIC_ID")
+
+    subscriber = pubsub_v1.SubscriberClient()
+    subscription_path = subscriber.subscription_path(project_id, topic_id)
+
+    future = subscriber.subscribe(subscription_path, callback=subscriber_callback)
+
+    try:
+        future.result()
+    except KeyboardInterrupt:
+        future.cancel()  # Trigger the shutdown.
+        future.result()  # Block until the shutdown is complete.
+
+
+if __name__ == "__main__":
+    main()
