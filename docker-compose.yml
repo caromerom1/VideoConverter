@@ -23,6 +23,7 @@ services:
       - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
       - GCP_PROJECT_ID=${GCP_PROJECT_ID}
       - GCP_TOPIC_ID=${GCP_TOPIC_ID}
+      - GCP_SUBSCRIPTION_ID=${GCP_SUBSCRIPTION_ID}
     networks:
       - video_converter_services
 
