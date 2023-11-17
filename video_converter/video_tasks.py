@@ -106,7 +106,7 @@ def main():
     subscriber = pubsub_v1.SubscriberClient()
     subscription_path = subscriber.subscription_path(project_id, subscription_id)
 
-    logger.info(f"Listening for messages on {subscription_path}", end="\n\n")
+    logger.info(f"Listening for messages on {subscription_path}\n")
 
     future = subscriber.subscribe(subscription_path, callback=subscriber_callback)
 
