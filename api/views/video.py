@@ -147,7 +147,7 @@ def convert_video():
                 "original_path": converted_file_location,
                 "extension": conversion_extension,
             }
-        )
+        ).encode("utf-8")
         future = publisher.publish(topic_path, data=video_data)
         future.result()
 
