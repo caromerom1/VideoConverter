@@ -6,7 +6,7 @@ import tempfile
 import json
 import logging
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 logger = logging.getLogger(__name__)
 
 GCP_BUCKET_NAME = "video-converter-bucket"
