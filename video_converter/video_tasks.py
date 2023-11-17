@@ -4,6 +4,7 @@ from enums import ConversionStatus
 from google.cloud import pubsub_v1, storage
 import tempfile
 import json
+import logging
 
 
 GCP_BUCKET_NAME = "video-converter-bucket"
@@ -92,7 +93,7 @@ def subscriber_callback(message):
     else:
         message.nack()
 
-    print(task_result)
+    logging.info(task_result)
 
 
 def main():
@@ -103,6 +104,8 @@ def main():
     subscription_path = subscriber.subscription_path(project_id, subscription_id)
 
     future = subscriber.subscribe(subscription_path, callback=subscriber_callback)
+
+    logging.info(f"Listening for messages on {subscription_path}..\n")
 
     try:
         future.result()
