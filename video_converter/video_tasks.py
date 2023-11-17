@@ -4,7 +4,10 @@ from enums import ConversionStatus
 from google.cloud import pubsub_v1, storage
 import tempfile
 import json
+import logging
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 GCP_BUCKET_NAME = "video-converter-bucket"
 client = storage.Client()
@@ -60,6 +63,7 @@ def convert_video(video_data):
             video_conversion_task.status = ConversionStatus.SUCCESS
             session.commit()
 
+            logger.info(f"Converted {original_file_location} to {converted_file_location}")
             return {
                 "status": "SUCCESS",
                 "message": f"Converted {original_file_location} to {converted_file_location}",
@@ -92,7 +96,7 @@ def subscriber_callback(message):
     else:
         message.nack()
 
-    print(task_result)
+    logger.info(task_result)
 
 
 def main():
@@ -102,7 +106,7 @@ def main():
     subscriber = pubsub_v1.SubscriberClient()
     subscription_path = subscriber.subscription_path(project_id, subscription_id)
 
-    print(f"Listening for messages on {subscription_path}", end="\n\n")
+    logger.info(f"Listening for messages on {subscription_path}", end="\n\n")
 
     future = subscriber.subscribe(subscription_path, callback=subscriber_callback)
 
