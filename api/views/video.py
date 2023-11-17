@@ -143,8 +143,8 @@ def convert_video():
         video_data = json.dumps(
             {
                 "task_id": video_task.id,
-                "converted_path": original_file_location,
-                "original_path": converted_file_location,
+                "converted_path": converted_file_location,
+                "original_path": original_file_location,
                 "extension": conversion_extension,
             }
         ).encode("utf-8")
