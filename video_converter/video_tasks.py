@@ -97,10 +97,10 @@ def subscriber_callback(message):
 
 def main():
     project_id = os.environ.get("GCP_PROJECT_ID")
-    topic_id = os.environ.get("GCP_TOPIC_ID")
+    subscription_id = os.environ.get("GCP_SUBSCRIPTION_ID")
 
     subscriber = pubsub_v1.SubscriberClient()
-    subscription_path = subscriber.subscription_path(project_id, topic_id)
+    subscription_path = subscriber.subscription_path(project_id, subscription_id)
 
     future = subscriber.subscribe(subscription_path, callback=subscriber_callback)
 
