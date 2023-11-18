@@ -1,4 +1,6 @@
 import os
+import time
+
 from models import session, Video
 from enums import ConversionStatus
 from google.cloud import pubsub_v1, storage
@@ -111,13 +113,15 @@ def main():
 
     flow_control = FlowControl(max_messages=1)
 
-    future = subscriber.subscribe(subscription_path, callback=subscriber_callback, flow_control=flow_control)
-
-    try:
-        future.result(timeout=30)
-    except KeyboardInterrupt:
-        future.cancel()  # Trigger the shutdown.
-        future.result()  # Block until the shutdown is complete.
+    while True:
+        try:
+            future = subscriber.subscribe(subscription_path, callback=subscriber_callback, flow_control=flow_control)
+            future.result()
+            time.sleep(30)
+        except KeyboardInterrupt:
+            future.cancel()  # Trigger the shutdown.
+            future.result()  # Block until the shutdown is complete.
+            break
 
 
 if __name__ == "__main__":
