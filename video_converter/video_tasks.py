@@ -2,6 +2,7 @@ import os
 from models import session, Video
 from enums import ConversionStatus
 from google.cloud import pubsub_v1, storage
+from google.cloud.pubsub_v1.types import FlowControl
 import tempfile
 import json
 import logging
@@ -108,10 +109,12 @@ def main():
 
     logger.info(f"Listening for messages on {subscription_path}\n")
 
-    future = subscriber.subscribe(subscription_path, callback=subscriber_callback)
+    flow_control = FlowControl(max_messages=1)
+
+    future = subscriber.subscribe(subscription_path, callback=subscriber_callback, flow_control=flow_control)
 
     try:
-        future.result()
+        future.result(timeout=30)
     except KeyboardInterrupt:
         future.cancel()  # Trigger the shutdown.
         future.result()  # Block until the shutdown is complete.
