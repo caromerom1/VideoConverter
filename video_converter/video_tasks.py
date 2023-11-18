@@ -111,7 +111,7 @@ def main():
 
     logger.info(f"Listening for messages on {subscription_path}\n")
 
-    flow_control = FlowControl(max_messages=1)
+    flow_control = FlowControl(max_messages=2)
 
     while True:
         try:
