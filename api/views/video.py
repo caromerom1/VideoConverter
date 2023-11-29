@@ -26,7 +26,7 @@ topic_path = publisher.topic_path(project_id, topic_name)
 @video_bp.route("/", methods=["GET"])
 @jwt_required()
 def get_all_videos():
-    request_data = request.json
+    request_data = request.args.to_dict(flat=True)
     user_id = get_jwt_identity()
     order = request_data.get("order", None)
     max = request_data.get("max", None)
