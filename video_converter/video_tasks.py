@@ -1,16 +1,15 @@
+import base64
 import os
-import time
+
+from flask import Flask, jsonify, request
 
 from models import session, Video
 from enums import ConversionStatus
-from google.cloud import pubsub_v1, storage
-from google.cloud.pubsub_v1.types import FlowControl
+from google.cloud import storage
 import tempfile
 import json
-import logging
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
-logger = logging.getLogger(__name__)
+app = Flask(__name__)
 
 GCP_BUCKET_NAME = "video-converter-bucket"
 client = storage.Client()
@@ -47,14 +46,14 @@ def convert_video(video_data):
             if not cmd:
                 video_conversion_task.status = ConversionStatus.FAILED
                 session.commit()
-                return {"status": "ERROR", "message": "Conversion failed"}
+                return jsonify({"status": "ERROR", "message": "Conversion failed"}), 400
 
             convertion_status = os.system(cmd)
 
             if convertion_status != 0:
                 video_conversion_task.status = ConversionStatus.FAILED
                 session.commit()
-                return {"status": "ERROR", "message": "Conversion failed"}
+                return jsonify({"status": "ERROR", "message": "Conversion failed"}), 500
 
             bucket.blob(
                 f"{converted_file_name}.{conversion_extension}"
@@ -66,11 +65,18 @@ def convert_video(video_data):
             video_conversion_task.status = ConversionStatus.SUCCESS
             session.commit()
 
-            logger.info(f"Converted {original_file_location} to {converted_file_location}")
-            return {
-                "status": "SUCCESS",
-                "message": f"Converted {original_file_location} to {converted_file_location}",
-            }
+            app.logger.info(
+                f"Converted {original_file_location} to {converted_file_location}"
+            )
+            return (
+                jsonify(
+                    {
+                        "status": "SUCCESS",
+                        "message": f"Converted {original_file_location} to {converted_file_location}",
+                    }
+                ),
+                200,
+            )
 
     finally:
         os.remove(temp_upload_file)
@@ -89,40 +95,44 @@ def conversion_command(paths, conversion_extension):
     return conversion_commands.get(conversion_extension, None)
 
 
-def subscriber_callback(message):
-    video_data = json.loads(message.data.decode("utf-8"))
+@app.route("/convert-video", methods=["POST"])
+def pubsub_push():
+    envelope = request.get_json()
 
-    task_result = convert_video(video_data)
+    if not envelope:
+        msg = "no Pub/Sub message received"
+        app.logger.error(f"error: {msg}")
+        return f"Bad Request: {msg}", 400
 
-    if task_result.get("status") == "SUCCESS":
-        message.ack()
-    else:
-        message.nack()
+    if not isinstance(envelope, dict) or "message" not in envelope:
+        msg = "invalid Pub/Sub message format"
+        app.logger.error(f"error: {msg}")
+        return f"Bad Request: {msg}", 400
 
-    logger.info(task_result)
+    pubsub_message = envelope["message"]
+
+    if not isinstance(pubsub_message, dict) and not "data" in pubsub_message:
+        msg = "invalid Pub/Sub message format"
+        app.logger.error(f"error: {msg}")
+        return ("", 204)
+
+    video_data = json.loads(base64.b64decode(pubsub_message["data"]).decode("utf-8"))
+    app.logger.info(
+        f"Received video conversion task {video_data['task_id']} for {video_data['original_path']}."
+    )
+
+    try:
+        convert_video(video_data)
+    except Exception as e:
+        app.logger.error(f"Error converting video: {e}")
+        return ("", 500)
 
 
-def main():
-    project_id = os.environ.get("GCP_PROJECT_ID")
-    subscription_id = os.environ.get("GCP_SUBSCRIPTION_ID")
-
-    subscriber = pubsub_v1.SubscriberClient()
-    subscription_path = subscriber.subscription_path(project_id, subscription_id)
-
-    logger.info(f"Listening for messages on {subscription_path}\n")
-
-    flow_control = FlowControl(max_messages=2)
-
-    while True:
-        try:
-            future = subscriber.subscribe(subscription_path, callback=subscriber_callback, flow_control=flow_control)
-            future.result()
-            time.sleep(30)
-        except KeyboardInterrupt:
-            future.cancel()  # Trigger the shutdown.
-            future.result()  # Block until the shutdown is complete.
-            break
+@app.route("/healthcheck", methods=["GET"])
+def signup():
+    return jsonify({"message": "OK"}), 200
 
 
 if __name__ == "__main__":
-    main()
+    CONVERTER_PORT = os.environ.get("CONVERTER_PORT", 5000)
+    app.run(debug=True, port=CONVERTER_PORT, host="0.0.0.0")
